@@ -1,0 +1,152 @@
+import React, { useState, useEffect, useContext } from "react";
+import { assets } from "../assets/assets.js";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { ShopContext } from "../context/ShopContext.jsx";
+import BillingAddress from "../components/BillingAddress.jsx";
+import ChangePassword from "../components/ChangePassword.jsx";
+import MyOrders from "../components/MyOrders.jsx";
+import DeleteAccount from "../components/DeleteAccount.jsx";
+import Account from "../components/Account.jsx";
+import Privacy from "../components/Privacy.jsx";
+
+function Profile() {
+	const { backendUrl, isAuthenticated, navigate } = useContext(ShopContext);
+	const [activeTab, setActiveTab] = useState("account");
+	const [user, setUser] = useState({});
+
+	// console.log("User in Profile:", user);
+
+	const fetchProfile = async () => {
+		try {
+			const response = await axios.get(`${backendUrl}/api/user/current`, {
+				withCredentials: true,
+			});
+			if (response.data.success) {
+				setUser(response.data.user);
+			} else {
+				// toast.error(response.data.message || "Failed to fetch profile");
+				console.log(response.data.message);
+			}
+		} catch (error) {
+			console.log(error);
+			// toast.error("Failed to fetch profile");
+		}
+	};
+
+	const navItems = [
+		{ icon: "fa-user", label: "Account", component: <Account user={user} /> },
+		{ icon: "fa-asterisk", label: "Change Password", component: <ChangePassword /> },
+		{ icon: "fa-truck", label: "Shipping Address", component: <BillingAddress user={user} /> },
+		{ icon: "fa-lock", label: "Privacy", component: <Privacy /> },
+		{ icon: "fa-trash", label: "Delete Account", component: <DeleteAccount /> },
+	];
+
+	useEffect(() => {
+		fetchProfile();
+	}, [activeTab]);
+
+	const activeItem = navItems.find(
+		(item) => item.label.toLowerCase().replace(" ", "-") === activeTab,
+	);
+
+	return (
+		<div className="flex flex-col md:flex-row max-w-6xl mx-auto mt-10 gap-8 px-2 md:px-0">
+			{/* Sidebar */}
+			<aside className="h-[100%] w-full md:w-1/3 lg:w-1/4 bg-white rounded-2xl shadow p-6 flex flex-col items-center mb-6 md:mb-0">
+				<div
+					className={`flex flex-col items-center mb-6 transition-all duration-400 ease-in-out transform ${
+						activeTab === "account"
+							? "opacity-0 scale-95 pointer-events-none h-0 overflow-hidden"
+							: "opacity-100 scale-100"
+					}`}
+				>
+                    {user.profilePicture ? (
+						<img
+							src={user.profilePicture}
+							alt="Profile"
+							className="w-28 h-28 rounded-full object-cover border-4 border-gray-200 shadow mb-4"
+						/>
+					) : (
+						<div className="w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-200 shadow mb-4">
+                            <p className="text-gray-400 text-5xl font-bold">{user.name?.charAt(0) || "A"}</p>
+                        </div>
+					)}
+					<h2 className="text-xl font-semibold mb-1">{user.name}</h2>
+				</div>
+				<nav className="w-full">
+					<ul className="space-y-2">
+						{navItems.map((item, idx) => (
+							<li key={item.label}>
+								<button
+									onClick={() =>
+										setActiveTab(item.label.toLowerCase().replace(" ", "-"))
+									}
+									className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-base font-medium transition border border-transparent hover:bg-gray-100 focus:outline-none ${
+										activeTab === item.label.toLowerCase().replace(" ", "-")
+											? "bg-gray-100 border-blue-500 text-blue-700"
+											: "text-gray-700"
+									}`}
+								>
+									<span>
+										<i
+											className={`fas ${item.icon} text-lg ${
+												activeTab ===
+												item.label.toLowerCase().replace(" ", "-")
+													? "text-blue-500"
+													: "text-gray-400"
+											}`}
+										></i>
+									</span>
+									{item.label}
+									<span className="ml-auto">
+										<i className="fas fa-chevron-right text-xs text-gray-400"></i>
+									</span>
+								</button>
+							</li>
+						))}
+					</ul>
+				</nav>
+			</aside>
+
+			{/* Main Content */}
+			{isAuthenticated ? (
+				<main className="flex-1 bg-white rounded-2xl shadow p-8">
+					<h3 className="text-2xl font-semibold mb-6 flex items-center gap-3">
+						{activeItem?.icon && (
+							<i className={`fas ${activeItem.icon} text-blue-500`}></i>
+						)}
+						{activeItem?.label || "Profile"}
+					</h3>
+					{activeItem?.component || (
+						<div className="text-center text-gray-500">
+							<p>Select a section from the sidebar to view details.</p>
+						</div>
+					)}
+				</main>
+			) : (
+				<div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl shadow p-8 min-h-[350px]">
+					<div className="flex flex-col items-center">
+						{/* <div className="bg-blue-100 rounded-full p-4 mb-4">
+							<i className="fas fa-user-lock text-4xl text-blue-500"></i>
+						</div> */}
+						<h3 className="text-2xl font-semibold mb-2 text-center">
+							You are not logged in
+						</h3>
+						<p className="text-gray-500 mb-6 text-center max-w-xs">
+							Please log in to access your profile and account details.
+						</p>
+						<button
+							className="bg-blue-500 hover:bg-blue-600 transition text-white px-6 py-2 rounded-lg font-medium shadow"
+							onClick={() => navigate("/login")}
+						>
+							Log In
+						</button>
+					</div>
+				</div>
+			)}
+		</div>
+	);
+}
+
+export default Profile;

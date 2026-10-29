@@ -1,0 +1,53 @@
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home.jsx";
+import Collection from "./pages/Collection.jsx";
+import About from "./pages/About.jsx";
+import Contact from "./pages/Contact.jsx";
+import Product from "./pages/Product.jsx";
+import Cart from "./pages/Cart.jsx";
+import Login from "./pages/Login.jsx";
+import PlaceOrder from "./pages/PlaceOrder.jsx";
+import Orders from "./pages/Orders.jsx";
+import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer.jsx";
+import SearchBar from "./components/SearchBar.jsx";
+import { ToastContainer } from "react-toastify";
+import Verify from "./pages/Verify.jsx";
+import Profile from "./pages/Profile.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
+import VerifyEmail from "./pages/VerifyEmail.jsx";
+
+const App = () => {
+	return (
+		<div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+			<ScrollToTop />
+			<ToastContainer />
+			<Navbar />
+			<div className="pt-20">
+				<SearchBar />
+				<Routes>
+					<Route path="/" element={<Home />} />
+					<Route path="/collection" element={<Collection />} />
+					<Route path="/about" element={<About />} />
+					<Route path="/contact" element={<Contact />} />
+					<Route path="/product/:productId" element={<Product />} />
+					<Route path="/cart" element={<Cart />} />
+					<Route path="/login" element={<Login />} />
+					<Route path="/place-order" element={<PlaceOrder />} />
+					<Route path="/orders" element={<Orders />} />
+					<Route path="/verify" element={<Verify />} />
+					<Route path="/profile" element={<Profile />} />
+					<Route path="/verify-email" element={<VerifyEmail />} />
+					<Route
+						path="*"
+						element={<h1 className="text-3xl text-center mt-10">Page Not Found</h1>}
+					/>
+				</Routes>
+			</div>
+			<Footer />
+		</div>
+	);
+};
+
+export default App;
